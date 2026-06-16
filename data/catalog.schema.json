@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/arm/topo-project-catalog/main/data/catalog.schema.json",
+  "title": "Topo Templates Catalog",
+  "description": "A catalog of Topo Template repositories.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["templates"],
+  "properties": {
+    "$schema": {
+      "description": "Schema URL for editor and tooling discovery.",
+      "type": "string",
+      "const": "https://raw.githubusercontent.com/arm/topo-project-catalog/main/data/catalog.schema.json"
+    },
+    "templates": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/template"
+      }
+    }
+  },
+  "$defs": {
+    "arg": {
+      "type": "object",
+      "description": "Build argument definition.",
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "Context displayed in user prompts."
+        },
+        "required": {
+          "type": "boolean",
+          "description": "If true, implementations must enforce input or error."
+        },
+        "default": {
+          "type": "string",
+          "description": "Value used if user skips input (only valid when not required)."
+        },
+        "example": {
+          "type": "string",
+          "description": "Hint text displayed in help and prompts."
+        },
+        "hints": {
+          "type": "object",
+          "description": "Advisory metadata that implementations may use to discover, filter, or suggest suitable argument values. Unknown hint keys should be ignored.",
+          "patternProperties": {
+            "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$": {
+              "oneOf": [
+                {
+                  "type": ["string", "number", "boolean"]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": ["string", "number", "boolean"]
+                  }
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "template": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "description", "url", "ref"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "features": {
+          "description": "Optional list of hardware, runtime, or platform features used by the template.",
+          "oneOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "args": {
+          "description": "Optional dictionary of build argument definitions used for parameterized templates.",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/arg"
+          }
+        },
+        "url": {
+          "description": "Repository URL containing the template. This URL is the stable source identifier used to match catalog entries to configured sources.",
+          "type": "string",
+          "format": "uri"
+        },
+        "ref": {
+          "description": "Git ref to use when fetching the template repository.",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

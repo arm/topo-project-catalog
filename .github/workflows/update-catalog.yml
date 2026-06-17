@@ -1,0 +1,60 @@
+name: Update catalog
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "data/github_sources.json"
+      - "data/catalog.schema.json"
+      - "**/*.go"
+      - "go.mod"
+      - "go.sum"
+  schedule:
+    # Every day at 06:00 UTC.
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: update-catalog-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  update:
+    name: Regenerate catalog and open PR
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Regenerate catalog
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: go run ./cmd/update-catalog
+
+      - name: Create/update catalog PR
+        uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6
+        with:
+          branch: automation/update-catalog
+          delete-branch: true
+          commit-message: "chore: update generated catalog"
+          title: "chore: update generated catalog"
+          body: |
+            Regenerates `data/catalog.json` from `data/github_sources.json`.
+
+            Triggered by `${{ github.event_name }}`.
+          labels: automated,catalog
+          add-paths: |
+            data/catalog.json

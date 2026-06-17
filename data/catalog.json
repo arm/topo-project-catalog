@@ -17,31 +17,6 @@
       "ref": "8303e66db59a7a11e64877121f3db1b688d2011f"
     },
     {
-      "name": "Lightbulb Moment",
-      "description": "Reads a switch over GPIO pins on an M class cpu, reports switch state over Remoteproc Message, then a web application on the A class reads this and displays a lightbulb in either the on or off state. The lightbulb state is described by an LLM in any user-specified style.",
-      "features": [
-        "remoteproc-runtime"
-      ],
-      "args": {
-        "LLM_PROMPT_PRESET": {
-          "description": "The writing style for the LLM to use when generating messages about the light bulb state. Can be any style description (e.g., \"shakespearean english\", \"pirate\", \"haiku\", \"detective noir\").\n",
-          "required": true,
-          "default": "shakespearean english",
-          "example": "shakespearean english"
-        },
-        "PLATFORM": {
-          "description": "The platform to build for. Must be either `stm32mp257` or `imx93`.",
-          "required": true
-        },
-        "REMOTEPROC": {
-          "description": "The remoteproc device to use. Must be `m33` if the stm32 board is used, or `imx-rproc` if the imx93 board is used.",
-          "required": true
-        }
-      },
-      "url": "https://github.com/Arm-Examples/topo-lightbulb-moment.git",
-      "ref": "c2b2e4a672cda67832372f77aeb1d1f71beee9a7"
-    },
-    {
       "name": "Topo CPU AI Chat",
       "description": "Complete LLM chat application optimized for Arm CPU inference.\n\nThis project demonstrates running large language models on CPU\nusing llama.cpp compiled with Arm baseline optimizations and\naccelerated using NEON SIMD and SVE (when supported and enabled).\n\nThe stack includes:\n- llama.cpp server with Arm NEON optimizations (SVE optional)\n- Quantized SmolLM2-135M-Instruct model bundled in the image\n- Simple web-based chat interface\n- No GPU required - pure CPU inference\n\nPerfect for demos and testing! The bundled SmolLM2-135M-Instruct model\nallows the project to run immediately without downloading additional models.\n\nIdeal for testing LLM workloads on Arm hardware without GPU dependencies,\nshowcasing how far you can push NEON acceleration. Rebuild with SVE enabled\nwhen wider vectors are available.\n",
       "features": [

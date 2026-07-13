@@ -1,16 +1,16 @@
 # Topo Project Catalog
 
-Catalog data and update tooling for Topo Template projects.
+Catalog data and update tooling for Topo Projects.
 
 ## Contents
 
-- `data/catalog.json` — generated catalog of Topo Template repositories.
+- `data/catalog.json` — generated catalog of Topo Project repositories.
 - `data/catalog.schema.json` — JSON Schema for the catalog format.
 - `data/github_sources.json` — source repositories and pinned commits used to generate the catalog.
 
 ## Updating the catalog
 
-Edit `data/github_sources.json` to add, remove, or change pinned template repositories, then run:
+Edit `data/github_sources.json` to add, remove, or change pinned project repositories, then run:
 
 ```sh
 go run ./cmd/update-catalog

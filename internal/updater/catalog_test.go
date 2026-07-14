@@ -10,13 +10,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestReadTemplates(t *testing.T) {
-	t.Run("reads templates from catalog file", func(t *testing.T) {
+func TestReadProjects(t *testing.T) {
+	t.Run("reads projects from catalog file", func(t *testing.T) {
 		path := filepath.Join(t.TempDir(), "catalog.json")
 		err := os.WriteFile(path, []byte(`
 {
-	"$schema": "https://raw.githubusercontent.com/arm/topo-project-catalog/main/data/catalog.schema.json",
-	"templates": [
+	"projects": [
 		{
 			"name": "death-star-trench-run",
 			"description": "Use the Force to benchmark impossible shots",
@@ -29,10 +28,10 @@ func TestReadTemplates(t *testing.T) {
 `), 0o600)
 		require.NoError(t, err)
 
-		got, err := ReadTemplates(path)
+		got, err := ReadProjects(path)
 
 		require.NoError(t, err)
-		want := []Template{
+		want := []Project{
 			{
 				XTopo: XTopo{
 					Name:        "death-star-trench-run",
@@ -51,8 +50,8 @@ func TestWriteCatalog(t *testing.T) {
 	t.Run("writes catalog document to file", func(t *testing.T) {
 		path := filepath.Join(t.TempDir(), "catalog.json")
 		want := Catalog{
-			Schema: "https://raw.githubusercontent.com/arm/topo-project-catalog/main/data/catalog.schema.json",
-			Templates: []Template{
+			Schema: "https://example.com/schema.json",
+			Projects: []Project{
 				{
 					XTopo: XTopo{
 						Name:        "death-star-trench-run",

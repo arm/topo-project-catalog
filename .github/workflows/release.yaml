@@ -1,14 +1,19 @@
 name: Release catalog
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - "data/**"
   workflow_dispatch:
     inputs:
       release-version:
         description: Version used for the release (without the v prefix)
-        required: true
+        required: false
         type: string
       pre-release:
-        description: Create a pre-release
+        description: Pre-release
         required: false
         type: boolean
         default: false
@@ -16,28 +21,141 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: release-catalog
+  cancel-in-progress: false
+
 jobs:
+  check-catalog:
+    name: Check catalog is up to date
+    uses: ./.github/workflows/check-catalog.yml
+
   release:
+    name: Release catalog
+    needs: check-catalog
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Create GitHub release
+      - name: Calculate release version
+        id: version
+        env:
+          REQUESTED_VERSION: ${{ inputs.release-version }}
+          PRE_RELEASE: ${{ inputs.pre-release || false }}
+        run: |
+          version="${REQUESTED_VERSION:-0.0.${{ github.run_number }}}"
+          if [ "$PRE_RELEASE" = "true" ] && [[ "$version" != *-rc* ]]; then
+            version="${version}-rc"
+          fi
+          echo "value=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Create draft GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_VERSION: ${{ inputs.release-version }}
-          PRE_RELEASE: ${{ inputs.pre-release }}
+          RELEASE_VERSION: ${{ steps.version.outputs.value }}
+          PRE_RELEASE: ${{ inputs.pre-release || false }}
         run: |
-          args=(
-            "v${RELEASE_VERSION}"
-            data/*
-            --title "v${RELEASE_VERSION}"
-            --generate-notes
-          )
-
+          args=("v${RELEASE_VERSION}" data/* --title "v${RELEASE_VERSION}" --generate-notes --draft)
           if [ "$PRE_RELEASE" = "true" ]; then
             args+=(--prerelease)
           fi
-
           gh release create "${args[@]}"
+
+      - name: Create GitHub App token for catalog publisher
+        id: publisher-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.TOPO_DEBUG_ACCESS_APP_ID }}
+          private-key: ${{ secrets.TOPO_DEBUG_ACCESS_APP_PRIVATE_KEY }}
+          owner: Arm-Debug
+          repositories: topo-project-catalog-publisher
+
+      - name: Trigger catalog publisher
+        id: trigger-publisher
+        env:
+          GH_TOKEN: ${{ steps.publisher-token.outputs.token }}
+          RELEASE_VERSION: ${{ steps.version.outputs.value }}
+        run: |
+          previous_run_id="$(gh run list \
+            --repo Arm-Debug/topo-project-catalog-publisher \
+            --workflow upload-to-artifactory.yaml \
+            --branch main \
+            --event workflow_dispatch \
+            --limit 1 \
+            --json databaseId \
+            --jq '.[0].databaseId // empty')"
+
+          gh workflow run upload-to-artifactory.yaml \
+            --repo Arm-Debug/topo-project-catalog-publisher \
+            --ref main \
+            --field release-version="$RELEASE_VERSION" \
+            --field 'artifactory-uploadables=*.json'
+
+          echo "Waiting for the catalog publisher run to be created"
+          for attempt in {1..30}; do
+            publisher_run_id="$(gh run list \
+              --repo Arm-Debug/topo-project-catalog-publisher \
+              --workflow upload-to-artifactory.yaml \
+              --branch main \
+              --event workflow_dispatch \
+              --limit 1 \
+              --json databaseId \
+              --jq '.[0].databaseId // empty')"
+
+            if [ -n "$publisher_run_id" ] && [ "$publisher_run_id" != "$previous_run_id" ]; then
+              echo "publisher_run_id=$publisher_run_id" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+
+            echo "Publisher run is not visible yet; retrying in 10 seconds ($attempt/30)"
+            sleep 10
+          done
+
+          echo "::error::Timed out waiting for the catalog publisher run to be created"
+          exit 1
+
+      - name: Retrieve Artifactory URLs
+        env:
+          GH_TOKEN: ${{ steps.publisher-token.outputs.token }}
+          PUBLISHER_RUN_ID: ${{ steps.trigger-publisher.outputs.publisher_run_id }}
+        run: |
+          gh run watch "$PUBLISHER_RUN_ID" \
+            --repo Arm-Debug/topo-project-catalog-publisher \
+            --compact \
+            --interval 60 \
+            --exit-status
+
+          gh run download "$PUBLISHER_RUN_ID" \
+            --repo Arm-Debug/topo-project-catalog-publisher \
+            --name artifact-urls \
+            --dir publisher-artifacts
+
+          cat publisher-artifacts/artifact-urls.txt >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ steps.version.outputs.value }}
+          PRE_RELEASE: ${{ inputs.pre-release || false }}
+        run: |
+          gh release view "v${RELEASE_VERSION}" --json body --jq .body > generated-notes.md
+          {
+            cat publisher-artifacts/artifact-urls.txt
+            printf '\n\n## Changelog\n'
+            cat generated-notes.md
+          } > release-notes.md
+
+          args=("v${RELEASE_VERSION}" --draft=false --notes-file release-notes.md)
+          if [ "$PRE_RELEASE" != "true" ]; then
+            args+=(--latest)
+          fi
+          gh release edit "${args[@]}"
+
+      - name: Upload Artifactory URLs
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifact-urls
+          path: publisher-artifacts/artifact-urls.txt
+          if-no-files-found: error

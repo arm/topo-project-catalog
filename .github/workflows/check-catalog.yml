@@ -1,6 +1,7 @@
 name: Check catalog
 
 on:
+  workflow_call:
   pull_request:
     paths:
       - "data/github_sources.json"

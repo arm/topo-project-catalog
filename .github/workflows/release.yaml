@@ -116,7 +116,7 @@ jobs:
           echo "::error::Timed out waiting for the catalog publisher run to be created"
           exit 1
 
-      - name: Retrieve Artifactory URLs
+      - name: Upload to Artifactory
         env:
           GH_TOKEN: ${{ steps.publisher-token.outputs.token }}
           PUBLISHER_RUN_ID: ${{ steps.trigger-publisher.outputs.publisher_run_id }}
@@ -127,13 +127,6 @@ jobs:
             --interval 60 \
             --exit-status
 
-          gh run download "$PUBLISHER_RUN_ID" \
-            --repo Arm-Debug/topo-project-catalog-publisher \
-            --name artifact-urls \
-            --dir publisher-artifacts
-
-          cat publisher-artifacts/artifact-urls.txt >> "$GITHUB_STEP_SUMMARY"
-
       - name: Publish GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -142,7 +135,6 @@ jobs:
         run: |
           gh release view "v${RELEASE_VERSION}" --json body --jq .body > generated-notes.md
           {
-            cat publisher-artifacts/artifact-urls.txt
             printf '\n\n## Changelog\n'
             cat generated-notes.md
           } > release-notes.md
@@ -152,10 +144,3 @@ jobs:
             args+=(--latest)
           fi
           gh release edit "${args[@]}"
-
-      - name: Upload Artifactory URLs
-        uses: actions/upload-artifact@v4
-        with:
-          name: artifact-urls
-          path: publisher-artifacts/artifact-urls.txt
-          if-no-files-found: error

@@ -8,10 +8,6 @@ on:
       - "data/**"
   workflow_dispatch:
     inputs:
-      release-version:
-        description: Version used for the release (without the v prefix)
-        required: false
-        type: string
       pre-release:
         description: Pre-release
         required: false
@@ -38,16 +34,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install svu
+        run: |
+          GOBIN="$RUNNER_TEMP/bin" go install github.com/caarlos0/svu/v3@v3.4.1
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
 
       - name: Calculate release version
         id: version
         env:
-          REQUESTED_VERSION: ${{ inputs.release-version }}
           PRE_RELEASE: ${{ inputs.pre-release || false }}
         run: |
-          version="${REQUESTED_VERSION:-0.0.${{ github.run_number }}}"
-          if [ "$PRE_RELEASE" = "true" ] && [[ "$version" != *-rc* ]]; then
-            version="${version}-rc"
+          if [ "$PRE_RELEASE" = "true" ]; then
+            version="$(svu prerelease --prerelease rc --tag.prefix '')"
+          else
+            version="$(svu next --always --tag.prefix '')"
           fi
           echo "value=$version" >> "$GITHUB_OUTPUT"
 

@@ -54,15 +54,17 @@ jobs:
           fi
           echo "value=$version" >> "$GITHUB_OUTPUT"
 
-      - name: Create draft GitHub release
+      - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_VERSION: ${{ steps.version.outputs.value }}
           PRE_RELEASE: ${{ inputs.pre-release || false }}
         run: |
-          args=("v${RELEASE_VERSION}" data/* --title "v${RELEASE_VERSION}" --generate-notes --draft)
+          args=("v${RELEASE_VERSION}" data/* --title "v${RELEASE_VERSION}" --generate-notes)
           if [ "$PRE_RELEASE" = "true" ]; then
             args+=(--prerelease)
+          else
+            args+=(--latest)
           fi
           gh release create "${args[@]}"
 
@@ -129,21 +131,3 @@ jobs:
             --compact \
             --interval 60 \
             --exit-status
-
-      - name: Publish GitHub release
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RELEASE_VERSION: ${{ steps.version.outputs.value }}
-          PRE_RELEASE: ${{ inputs.pre-release || false }}
-        run: |
-          gh release view "v${RELEASE_VERSION}" --json body --jq .body > generated-notes.md
-          {
-            printf '\n\n## Changelog\n'
-            cat generated-notes.md
-          } > release-notes.md
-
-          args=("v${RELEASE_VERSION}" --draft=false --notes-file release-notes.md)
-          if [ "$PRE_RELEASE" != "true" ]; then
-            args+=(--latest)
-          fi
-          gh release edit "${args[@]}"

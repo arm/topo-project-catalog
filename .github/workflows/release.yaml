@@ -22,13 +22,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  check-catalog:
-    name: Check catalog is up to date
-    uses: ./.github/workflows/check-catalog.yml
-
   release:
     name: Release catalog
-    needs: check-catalog
     runs-on: ubuntu-latest
 
     steps:
@@ -37,10 +32,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: "go.mod"
+          cache: false
+
       - name: Install svu
         run: |
-          GOBIN="$RUNNER_TEMP/bin" go install github.com/caarlos0/svu/v3@v3.4.1
-          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+          go install github.com/caarlos0/svu/v3@9324add
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
       - name: Calculate release version
         id: version
@@ -53,6 +54,11 @@ jobs:
             version="$(svu next --always --tag.prefix '')"
           fi
           echo "value=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Generate catalog
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: go run ./cmd/update-catalog
 
       - name: Create GitHub release
         env:

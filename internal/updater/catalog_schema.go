@@ -12,7 +12,7 @@ import (
 
 const (
 	relativeCatalogSchemaPath = "data/catalog.schema.json"
-	catalogSchemaURL          = "https://raw.githubusercontent.com/arm/topo-project-catalog/main/data/catalog.schema.json"
+	catalogSchemaURL          = "https://raw.githubusercontent.com/arm/topo-project-catalog/v1.0.0/data/catalog.schema.json"
 )
 
 type CatalogSchema struct {

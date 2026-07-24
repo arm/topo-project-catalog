@@ -24,22 +24,8 @@ func Run() {
 		log.Fatalf("failed to list sources: %v\n", err)
 	}
 
-	catalogFilePath, err := CatalogFilePath()
-	if err != nil {
-		log.Fatalf("failed to find catalog file: %v\n", err)
-	}
-
-	currentProjects, err := ReadProjects(catalogFilePath)
-	if err != nil {
-		log.Fatalf("failed to read catalog file: %v\n", err)
-	}
-
-	plan := PlanUpdate(sources, currentProjects)
+	plan := PlanUpdate(sources, nil)
 	log.Printf("update plan:\n%s", indent(plan.String()))
-	if !plan.HasChanges() {
-		log.Println("catalog already up to date")
-		return
-	}
 
 	catalogSchemaFilePath, err := CatalogSchemaFilePath()
 	if err != nil {
@@ -71,6 +57,10 @@ func Run() {
 	}
 	if err := validator.ValidateCatalog(document); err != nil {
 		log.Fatalf("invalid catalog file: %v\n", err)
+	}
+	catalogFilePath, err := CatalogFilePath()
+	if err != nil {
+		log.Fatalf("failed to find catalog file: %v\n", err)
 	}
 	if err := WriteCatalog(catalogFilePath, document); err != nil {
 		log.Fatalf("failed to write catalog file: %v\n", err)

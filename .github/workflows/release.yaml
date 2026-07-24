@@ -66,11 +66,9 @@ jobs:
           RELEASE_VERSION: ${{ steps.version.outputs.value }}
           PRE_RELEASE: ${{ inputs.pre-release || false }}
         run: |
-          args=("v${RELEASE_VERSION}" data/* --title "v${RELEASE_VERSION}" --generate-notes)
+          args=("${RELEASE_VERSION}" data/* --title "${RELEASE_VERSION}" --generate-notes)
           if [ "$PRE_RELEASE" = "true" ]; then
             args+=(--prerelease)
-          else
-            args+=(--latest)
           fi
           gh release create "${args[@]}"
 

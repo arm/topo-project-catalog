@@ -101,7 +101,7 @@ jobs:
 
           echo "publisher_run_id=$publisher_run_id" >> "$GITHUB_OUTPUT"
 
-      - name: Upload to Artifactory
+      - name: Wait for Artifactory upload to complete
         env:
           GH_TOKEN: ${{ steps.publisher-token.outputs.token }}
           PUBLISHER_RUN_ID: ${{ steps.trigger-publisher.outputs.publisher_run_id }}

@@ -81,7 +81,3 @@ func FetchProject(client GitHubClient, source GitHubSource) (Project, error) {
 	}
 	return NewProject(source, bytes.NewReader(yamlBytes))
 }
-
-func (t Project) SourceID() ProjectSourceID {
-	return ProjectSourceID(t.URL)
-}

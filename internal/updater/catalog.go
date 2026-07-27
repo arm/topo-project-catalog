@@ -16,20 +16,6 @@ type Catalog struct {
 	Projects []Project `json:"projects"`
 }
 
-func ReadProjects(path string) ([]Project, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close() //nolint:errcheck // Closing a read-only file cannot affect catalog generation.
-
-	var document Catalog
-	if err := json.NewDecoder(file).Decode(&document); err != nil {
-		return nil, err
-	}
-	return document.Projects, nil
-}
-
 func WriteCatalog(path string, document Catalog) error {
 	outputFile, err := os.Create(path)
 	if err != nil {

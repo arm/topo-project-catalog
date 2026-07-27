@@ -1,14 +1,15 @@
 name: Release catalog
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - "data/**"
   workflow_dispatch:
     inputs:
-      release-version:
-        description: Version used for the release (without the v prefix)
-        required: true
-        type: string
       pre-release:
-        description: Create a pre-release
+        description: Pre-release
         required: false
         type: boolean
         default: false
@@ -16,28 +17,97 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: release-catalog
+  cancel-in-progress: false
+
 jobs:
   release:
+    name: Release catalog
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: "go.mod"
+          cache: false
+
+      - name: Install svu
+        run: |
+          go install github.com/caarlos0/svu/v3@9324add
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Calculate release version
+        id: version
+        env:
+          PRE_RELEASE: ${{ inputs.pre-release || false }}
+        run: |
+          if [ "$PRE_RELEASE" = "true" ]; then
+            version="$(svu prerelease --prerelease pre)"
+          else
+            version="$(svu next --always)"
+          fi
+          echo "value=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Generate catalog
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: go run ./cmd/generate-catalog
 
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_VERSION: ${{ inputs.release-version }}
-          PRE_RELEASE: ${{ inputs.pre-release }}
+          RELEASE_VERSION: ${{ steps.version.outputs.value }}
+          PRE_RELEASE: ${{ inputs.pre-release || false }}
         run: |
-          args=(
-            "v${RELEASE_VERSION}"
-            data/*
-            --title "v${RELEASE_VERSION}"
-            --generate-notes
-          )
-
+          args=("${RELEASE_VERSION}" data/* --title "${RELEASE_VERSION}" --generate-notes)
           if [ "$PRE_RELEASE" = "true" ]; then
             args+=(--prerelease)
           fi
-
           gh release create "${args[@]}"
+
+      - name: Create GitHub App token for catalog publisher
+        id: publisher-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.TOPO_DEBUG_ACCESS_APP_ID }}
+          private-key: ${{ secrets.TOPO_DEBUG_ACCESS_APP_PRIVATE_KEY }}
+          owner: Arm-Debug
+          repositories: topo-project-catalog-publisher
+
+      - name: Trigger catalog publisher
+        id: trigger-publisher
+        env:
+          GH_TOKEN: ${{ steps.publisher-token.outputs.token }}
+          RELEASE_VERSION: ${{ steps.version.outputs.value }}
+        run: |
+          publisher_run_url="$(gh workflow run upload-to-artifactory.yaml \
+            --repo Arm-Debug/topo-project-catalog-publisher \
+            --ref main \
+            --field release-version="$RELEASE_VERSION" \
+            --field 'artifactory-uploadables=*.json')"
+
+          publisher_run_id="${publisher_run_url##*/}"
+          if [[ ! "$publisher_run_id" =~ ^[0-9]+$ ]]; then
+            echo "::error::Could not extract a run ID from: $publisher_run_url"
+            exit 1
+          fi
+
+          echo "publisher_run_id=$publisher_run_id" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for Artifactory upload to complete
+        env:
+          GH_TOKEN: ${{ steps.publisher-token.outputs.token }}
+          PUBLISHER_RUN_ID: ${{ steps.trigger-publisher.outputs.publisher_run_id }}
+        run: |
+          gh run watch "$PUBLISHER_RUN_ID" \
+            --repo Arm-Debug/topo-project-catalog-publisher \
+            --compact \
+            --interval 60 \
+            --exit-status

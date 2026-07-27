@@ -3,7 +3,6 @@ package updater
 import (
 	"log"
 	"os"
-	"strings"
 )
 
 func Run() {
@@ -24,23 +23,6 @@ func Run() {
 		log.Fatalf("failed to list sources: %v\n", err)
 	}
 
-	catalogFilePath, err := CatalogFilePath()
-	if err != nil {
-		log.Fatalf("failed to find catalog file: %v\n", err)
-	}
-
-	currentProjects, err := ReadProjects(catalogFilePath)
-	if err != nil {
-		log.Fatalf("failed to read catalog file: %v\n", err)
-	}
-
-	plan := PlanUpdate(sources, currentProjects)
-	log.Printf("update plan:\n%s", indent(plan.String()))
-	if !plan.HasChanges() {
-		log.Println("catalog already up to date")
-		return
-	}
-
 	catalogSchemaFilePath, err := CatalogSchemaFilePath()
 	if err != nil {
 		log.Fatalf("failed to find catalog schema file: %v\n", err)
@@ -51,8 +33,8 @@ func Run() {
 		log.Fatalf("failed to create schema validator: %v\n", err)
 	}
 
-	projects := append([]Project{}, plan.Unchanged...)
-	for _, source := range append(plan.ToAdd, plan.ToUpdate...) {
+	projects := make([]Project, 0, len(sources))
+	for _, source := range sources {
 		project, err := FetchProject(githubClient, source)
 		if err != nil {
 			log.Fatalf("failed to fetch %s: %v\n", source, err)
@@ -63,7 +45,6 @@ func Run() {
 		log.Printf("fetched %s\n", source)
 		projects = append(projects, project)
 	}
-	projects = ProjectsInSourceOrder(sources, projects)
 
 	document := Catalog{
 		Schema:   validator.SchemaURL(),
@@ -72,12 +53,12 @@ func Run() {
 	if err := validator.ValidateCatalog(document); err != nil {
 		log.Fatalf("invalid catalog file: %v\n", err)
 	}
+	catalogFilePath, err := CatalogFilePath()
+	if err != nil {
+		log.Fatalf("failed to find catalog file: %v\n", err)
+	}
 	if err := WriteCatalog(catalogFilePath, document); err != nil {
 		log.Fatalf("failed to write catalog file: %v\n", err)
 	}
 	log.Printf("written catalog to %s\n", catalogFilePath)
-}
-
-func indent(text string) string {
-	return "  " + strings.ReplaceAll(text, "\n", "\n  ")
 }

@@ -10,42 +10,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestReadProjects(t *testing.T) {
-	t.Run("reads projects from catalog file", func(t *testing.T) {
-		path := filepath.Join(t.TempDir(), "catalog.json")
-		err := os.WriteFile(path, []byte(`
-{
-	"projects": [
-		{
-			"name": "death-star-trench-run",
-			"description": "Use the Force to benchmark impossible shots",
-			"features": ["X-wing", "Astromech", "Proton torpedoes"],
-			"url": "ssh://death-star.example",
-			"ref": "rebellion"
-		}
-	]
-}
-`), 0o600)
-		require.NoError(t, err)
-
-		got, err := ReadProjects(path)
-
-		require.NoError(t, err)
-		want := []Project{
-			{
-				XTopo: XTopo{
-					Name:        "death-star-trench-run",
-					Description: "Use the Force to benchmark impossible shots",
-					Features:    []string{"X-wing", "Astromech", "Proton torpedoes"},
-				},
-				URL: "ssh://death-star.example",
-				Ref: "rebellion",
-			},
-		}
-		assert.Equal(t, want, got)
-	})
-}
-
 func TestWriteCatalog(t *testing.T) {
 	t.Run("writes catalog document to file", func(t *testing.T) {
 		path := filepath.Join(t.TempDir(), "catalog.json")

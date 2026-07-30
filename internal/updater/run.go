@@ -6,6 +6,11 @@ import (
 )
 
 func Run() {
+	catalogVersion := os.Getenv("CATALOG_VERSION")
+	if catalogVersion == "" {
+		log.Fatal("CATALOG_VERSION is required")
+	}
+
 	githubToken := os.Getenv("GITHUB_TOKEN")
 	if githubToken == "" {
 		log.Println("⚠️ GITHUB_TOKEN is not set: you might get rate limited")
@@ -48,6 +53,7 @@ func Run() {
 
 	document := Catalog{
 		Schema:   validator.SchemaURL(),
+		Version:  catalogVersion,
 		Projects: projects,
 	}
 	if err := validator.ValidateCatalog(document); err != nil {

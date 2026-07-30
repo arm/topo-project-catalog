@@ -14,13 +14,13 @@ The release workflow generates `data/catalog.json` and publishes it as a release
 Edit `data/github_sources.json` to add, remove, or change pinned project repositories. To generate the catalog locally, run:
 
 ```sh
-go run ./cmd/generate-catalog
+CATALOG_VERSION=v1.2.3 go run ./cmd/generate-catalog
 ```
 
 The updater uses `GITHUB_TOKEN` if present, which is recommended to avoid GitHub API rate limits:
 
 ```sh
-GITHUB_TOKEN=... go run ./cmd/generate-catalog
+GITHUB_TOKEN=... CATALOG_VERSION=v1.2.3 go run ./cmd/generate-catalog
 ```
 
 ## Validation

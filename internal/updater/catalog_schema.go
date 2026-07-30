@@ -55,6 +55,7 @@ func (v CatalogSchema) SchemaURL() string {
 func (v CatalogSchema) ValidateProject(project Project) error {
 	document := Catalog{
 		Schema:   v.SchemaURL(),
+		Version:  "validation",
 		Projects: []Project{project},
 	}
 	if err := v.ValidateCatalog(document); err != nil {

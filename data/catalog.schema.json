@@ -5,8 +5,13 @@
   "description": "A catalog of Topo Project repositories.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["projects"],
+  "required": ["version", "projects"],
   "properties": {
+    "version": {
+      "description": "Catalog version.",
+      "type": "string",
+      "minLength": 1
+    },
     "$schema": {
       "description": "Schema URL for editor and tooling discovery.",
       "type": "string",

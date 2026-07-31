@@ -57,6 +57,7 @@ jobs:
 
       - name: Generate catalog
         env:
+          CATALOG_VERSION: ${{ steps.version.outputs.value }}
           GITHUB_TOKEN: ${{ github.token }}
         run: go run ./cmd/generate-catalog
 

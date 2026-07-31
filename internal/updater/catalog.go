@@ -13,6 +13,7 @@ const (
 
 type Catalog struct {
 	Schema   string    `json:"$schema"`
+	Version  string    `json:"version"`
 	Projects []Project `json:"projects"`
 }
 

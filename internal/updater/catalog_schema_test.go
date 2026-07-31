@@ -68,7 +68,8 @@ func TestCatalogSchema(t *testing.T) {
 			validator, err := NewCatalogSchema(schemaPath)
 			require.NoError(t, err)
 			document := Catalog{
-				Schema: catalogSchemaURL,
+				Schema:  catalogSchemaURL,
+				Version: "v1.2.3",
 				Projects: []Project{
 					{
 						XTopo: XTopo{

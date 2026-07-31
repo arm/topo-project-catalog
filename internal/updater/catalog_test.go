@@ -14,7 +14,8 @@ func TestWriteCatalog(t *testing.T) {
 	t.Run("writes catalog document to file", func(t *testing.T) {
 		path := filepath.Join(t.TempDir(), "catalog.json")
 		want := Catalog{
-			Schema: "https://example.com/schema.json",
+			Schema:  "https://example.com/schema.json",
+			Version: "v1.2.3",
 			Projects: []Project{
 				{
 					XTopo: XTopo{

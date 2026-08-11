@@ -1,8 +1,8 @@
 # Topo Project acceptance criteria
 
-Topo Projects extend the [Compose Specification](https://compose-spec.io), so any Compose Project can become a Topo Project and be used with Topo. However, the best Topo Projects exhibit the following characteristics.
+Topo Projects extend the [Compose Specification](https://compose-spec.io), so any Compose Project can become a Topo Project and be used with Topo.
 
-Projects considered for inclusion in the default [Topo Project Catalog](https://github.com/arm/topo-project-catalog) are assessed against the following criteria.
+However, to be considered for inclusion in the default [Topo Project Catalog](https://github.com/arm/topo-project-catalog), Projects are assessed against the following criteria.
 
 ## Scope and purpose
 

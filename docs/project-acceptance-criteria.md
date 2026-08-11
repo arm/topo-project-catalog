@@ -18,7 +18,7 @@ The Topo Project Specification supports describing the hardware features require
 
 The Topo Project Specification supports parameterisation, allowing users to run `topo configure` for a given project to meet their specific needs. Projects should consider which `x-topo.parameters` they might expose to allow customisation.
 
-#### A multi-processor application leveraging [remoteproc-runtime](https://github.com/arm/remoteproc-runtime)
+#### Leverage multiple processor subsystems with [remoteproc-runtime](https://github.com/arm/remoteproc-runtime)
 
 Topo is compatible with remoteproc-runtime, supporting detection and automated installation of the runtime on the target. We welcome contributions that showcase heterogeneous applications enabled by remoteproc-runtime.
 
@@ -32,7 +32,7 @@ Topo Projects are expected to be extensible. The goal is to help users bootstrap
 
 #### Containerise all the build steps; don't package binaries
 
-Where possible, container images should be built from the included source rather than importing pre-built binary blobs. This gives users the greatest opportunity to extend the project.
+Where possible, container images should be built from the included source rather than importing pre-built binary blobs. This gives users the greatest opportunity to extend and modify the project.
 
 #### Document how the project works and suggest how to extend it
 

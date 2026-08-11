@@ -50,11 +50,11 @@ The [Topo project-authoring skills](https://github.com/arm/topo#project-authorin
 
 Use the `x-topo.features` attribute to declare what features your project requires. Topo will use this to avoid recommending your project on targets where it is not compatible.
 
-### No vibe coding
+### Correct, reliable, tested, and understood
 
-If your project is purely LLM-authored with little or no testing or novelty, it will be rejected from the catalog. Users do not need us to vibe code on their behalf.
+To offer Topo users a good experience, the catalog must contain only Projects that are reliable, well tested, and novel. Generated prototypes that have not been carefully reviewed and validated risk undermining trust in the catalog and are unlikely to provide value beyond what users could generate themselves.
 
-The catalog is home to Projects that are reliable, well tested, and novel. Every line of code is expected to be understood by the author, tested, and free from falsehoods.
+The use of LLM-assisted tools is not disqualifying, but contributors must understand and stand behind the submitted code. Submissions with little evidence of validation or thoughtful engineering will not be accepted.
 
 ### Be fast to build and iterate
 

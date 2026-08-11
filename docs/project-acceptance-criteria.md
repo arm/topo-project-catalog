@@ -40,6 +40,12 @@ The `README.md` for a Project should provide an overview of how the application 
 
 ## Quality
 
+### Only require `topo deploy` to build and run
+
+Running `topo deploy` must be sufficient to build and start the application. Define every required build, dependency-fetching, and setup step in `compose.yaml` or its Dockerfiles, or provide the result in a referenced container image. Do not require users to run additional commands manually.
+
+[Multi-stage builds](https://docs.docker.com/build/building/multi-stage/) can be used for compilation, dependency fetching, code generation, and asset bundling. Copy only the resulting artifacts and runtime dependencies into the final stage. This ensures `topo deploy` performs the complete build while keeping build tools, caches, and other build-only files out of the runtime image.
+
 ### Be semantically correct and leverage `x-topo` attributes as appropriate
 
 `x-topo` contains attributes that help users discover and use your Project. Ensure you have considered all available attributes in the schema and used them as appropriate.

@@ -16,7 +16,7 @@ The Topo Project Specification supports describing the hardware features require
 
 #### Support configuration
 
-The Topo Project Specification supports parameterisation, allowing users to run `topo configure` for a given project to meet their specific needs. Projects should consider which `x-topo.parameters` they might expose to allow customisation.
+The Topo Project Specification supports parameterization, allowing users to run `topo configure` for a given project to meet their specific needs. Projects should consider which `x-topo.parameters` they might expose to allow customization.
 
 #### Leverage multiple processor subsystems with [remoteproc-runtime](https://github.com/arm/remoteproc-runtime)
 

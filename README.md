@@ -6,10 +6,13 @@ Catalog generation and release tooling for Topo Projects.
 
 - `data/catalog.schema.json` — JSON Schema for the catalog format.
 - `data/github_sources.json` — source repositories and pinned commits used to generate the catalog.
+- `docs/project-acceptance-criteria.md` — criteria for including a Project in the catalog.
 
 ## Updating the catalog
 
 The release workflow generates `data/catalog.json` and publishes it as a release asset. It is not stored in the repository.
+
+Before proposing a Project, review the [Project acceptance criteria](docs/project-acceptance-criteria.md).
 
 Edit `data/github_sources.json` to add, remove, or change pinned project repositories. To generate the catalog locally, run:
 

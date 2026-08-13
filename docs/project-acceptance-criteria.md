@@ -10,7 +10,7 @@ The Project specification defines a set of best practices:
 
 [Topo Project Authoring Best Practices](https://github.com/arm/topo/blob/main/docs/project-specification/05-authoring-best-practices.md)
 
-Projects in the catalogue are expected to adhere to those practices.
+Projects in the catalog are expected to adhere to those practices.
 
 ## Clear value for the end user
 
@@ -40,7 +40,7 @@ Topo Projects are expected to be extensible. The goal is to help users bootstrap
 
 The `README.md` for a Project should provide an overview of how the application works, including links to the key entry points. It should also suggest next steps or explain how users can modify the Project and rerun `topo deploy` to see their changes.
 
-### Containerise everything necessary to modify the application
+### Containerize everything necessary to modify the application
 
 Ensure your project contains all the source and build steps necessary to allow the end user to extend or modify the core features. This means avoiding pre-built binaries or fetching packages which the user cannot modify, but does not extend to libraries or other images which support the application but which you would not reasonably expect the user to want to change.
 

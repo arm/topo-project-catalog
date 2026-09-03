@@ -3,6 +3,6 @@
 	{"repo": "Arm-Examples/topo-lightbulb-moment", "sha": "c2b2e4a672cda67832372f77aeb1d1f71beee9a7"},
 	{"repo": "Arm-Examples/topo-llama-web-ui", "sha": "9ef51579218733d97707f23c68189b2c4042e129"},
 	{"repo": "Arm-Examples/topo-executorch-image-classifier", "sha": "ce4e751474ad232caa4c1a4ee0c70da923a48ed6"},
-	{"repo": "Arm-Examples/topo-onnx-text-generator", "sha": "0eb69099603c9887b8a9b3b8db3d9648ea7f278a"},
+	{"repo": "Arm-Examples/topo-onnx-text-generator", "sha": "c932925b2da1db04db5d97d617d0f7ff74276954"},
 	{"repo": "Arm-Examples/topo-simd-visual-benchmark", "sha": "f0cd31621ce79b4643df7e9bdd8eff26c20b338c"}
 ]

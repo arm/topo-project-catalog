@@ -1,8 +1,8 @@
 [
-	{"repo": "Arm-Examples/topo-welcome", "sha": "8303e66db59a7a11e64877121f3db1b688d2011f"},
-	{"repo": "Arm-Examples/topo-lightbulb-moment", "sha": "c2b2e4a672cda67832372f77aeb1d1f71beee9a7"},
-	{"repo": "Arm-Examples/topo-llama-web-ui", "sha": "9ef51579218733d97707f23c68189b2c4042e129"},
-	{"repo": "Arm-Examples/topo-executorch-image-classifier", "sha": "e054e67367a7bb729983c8ec81ee16b58ca30cd3"},
-	{"repo": "Arm-Examples/topo-onnx-text-generator", "sha": "c932925b2da1db04db5d97d617d0f7ff74276954"},
-	{"repo": "Arm-Examples/topo-simd-visual-benchmark", "sha": "f0cd31621ce79b4643df7e9bdd8eff26c20b338c"}
+	{"repo": "Arm-Examples/topo-welcome", "sha": "92caa6d7fc5f73c23c6ef09efa32f4f92d979f01"},
+	{"repo": "Arm-Examples/topo-lightbulb-moment", "sha": "f5606d2dc7d8b03b13c294a5e9dbef4faefe6557"},
+	{"repo": "Arm-Examples/topo-llama-web-ui", "sha": "c04a21c89d5686c4d848f48c0bf4043daa108cbd"},
+	{"repo": "Arm-Examples/topo-executorch-image-classifier", "sha": "2bee62ec5cdf41ef4f1c0bda9e2dc31000fc02a8"},
+	{"repo": "Arm-Examples/topo-onnx-text-generator", "sha": "ab2bdbac3fc0bc6b777b9398f3068a411305238f"},
+	{"repo": "Arm-Examples/topo-simd-visual-benchmark", "sha": "d10307c3ba7b93cc5e49ed69068e98b8465f3dcf"}
 ]

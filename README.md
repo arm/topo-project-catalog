@@ -26,6 +26,19 @@ The updater uses `GITHUB_TOKEN` if present, which is recommended to avoid GitHub
 GITHUB_TOKEN=... CATALOG_VERSION=v1.2.3 go run ./cmd/generate-catalog
 ```
 
+## Refreshing source SHAs locally
+
+Use `scripts/refresh_github_sources.py` to update all project pins to their latest default-branch commits before generating a catalog:
+
+```sh
+gh auth login --hostname github.com
+gh auth status
+python3 scripts/refresh_github_sources.py
+git diff -- data/github_sources.json
+```
+The script updates only the local `data/github_sources.json` file.
+The daily/manual workflow runs the same script and opens or updates a PR when changes exist.
+
 ## Validation
 
 Run the test suite with:

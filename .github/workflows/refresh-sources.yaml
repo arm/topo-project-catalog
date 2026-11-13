@@ -16,7 +16,7 @@ jobs:
       - run: python3 .github/scripts/refresh_github_sources.py
         env:
           GH_TOKEN: ${{ github.token }}
-      - uses: peter-evans/create-pull-request@v8
+      - uses: peter-evans/create-pull-request@3ffccacd46053766916f087ce41d627c0b8cf2d1 # v8
         with:
           branch: automation/refresh-catalog-sources
           title: "chore: refresh catalog source SHAs"

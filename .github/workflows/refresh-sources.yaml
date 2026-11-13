@@ -1,0 +1,23 @@
+name: Refresh catalog sources
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - run: python3 .github/scripts/refresh_github_sources.py
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - uses: peter-evans/create-pull-request@v8
+        with:
+          branch: automation/refresh-catalog-sources
+          title: "chore: refresh catalog source SHAs"
+          add-paths: data/github_sources.json

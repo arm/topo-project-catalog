@@ -1,8 +1,11 @@
 name: Release catalog
 
 on:
-  schedule:
-    - cron: "0 3 * * *"
+  push:
+    branches:
+      - main
+    paths:
+      - "data/**"
   workflow_dispatch:
     inputs:
       pre-release:
@@ -52,34 +55,13 @@ jobs:
           fi
           echo "value=$version" >> "$GITHUB_OUTPUT"
 
-      - name: Refresh GitHub source SHAs
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python3 .github/scripts/refresh_github_sources.py
-
-      - name: Commit refreshed source SHAs
-        id: refresh
-        run: |
-          if git diff --quiet -- data/github_sources.json; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          echo "changed=true" >> "$GITHUB_OUTPUT"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/github_sources.json
-          git commit -m "chore: refresh catalog source SHAs"
-          git push origin "HEAD:${GITHUB_REF_NAME}"
-
       - name: Generate catalog
-        if: steps.refresh.outputs.changed == 'true'
         env:
           CATALOG_VERSION: ${{ steps.version.outputs.value }}
           GITHUB_TOKEN: ${{ github.token }}
         run: go run ./cmd/generate-catalog
 
       - name: Create GitHub release
-        if: steps.refresh.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_VERSION: ${{ steps.version.outputs.value }}
@@ -92,7 +74,6 @@ jobs:
           gh release create "${args[@]}"
 
       - name: Create GitHub App token for catalog publisher
-        if: steps.refresh.outputs.changed == 'true'
         id: publisher-token
         uses: actions/create-github-app-token@v3
         with:
@@ -102,7 +83,6 @@ jobs:
           repositories: topo-project-catalog-publisher
 
       - name: Trigger catalog publisher
-        if: steps.refresh.outputs.changed == 'true'
         id: trigger-publisher
         env:
           GH_TOKEN: ${{ steps.publisher-token.outputs.token }}
@@ -123,7 +103,6 @@ jobs:
           echo "publisher_run_id=$publisher_run_id" >> "$GITHUB_OUTPUT"
 
       - name: Wait for Artifactory upload to complete
-        if: steps.refresh.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ steps.publisher-token.outputs.token }}
           PUBLISHER_RUN_ID: ${{ steps.trigger-publisher.outputs.publisher_run_id }}

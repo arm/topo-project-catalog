@@ -2,6 +2,7 @@ import json
 import os
 import re
 import subprocess
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -25,6 +26,7 @@ def main():
             updates.append(source["repo"])
     if pr_body_path:
         Path(pr_body_path).write_text(
+            f"Checked at: {datetime.now(timezone.utc):%Y-%m-%d %H:%M:%S UTC}\n\n"
             "Detected updated commits for the following repositories:\n\n"
             + "\n".join(f"- {repo}" for repo in updates)
             + "\n"

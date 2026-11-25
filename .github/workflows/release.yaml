@@ -77,7 +77,7 @@ jobs:
         id: publisher-token
         uses: actions/create-github-app-token@v3
         with:
-          app-id: ${{ secrets.TOPO_DEBUG_ACCESS_APP_ID }}
+          client-id: ${{ vars.TOPO_DEBUG_ACCESS_APP_CLIENT_ID }}
           private-key: ${{ secrets.TOPO_DEBUG_ACCESS_APP_PRIVATE_KEY }}
           owner: Arm-Debug
           repositories: topo-project-catalog-publisher

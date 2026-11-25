@@ -5,5 +5,5 @@
 	{"repo": "Arm-Examples/topo-executorch-image-classifier", "sha": "2bee62ec5cdf41ef4f1c0bda9e2dc31000fc02a8"},
 	{"repo": "Arm-Examples/topo-onnx-text-generator", "sha": "aab71180371b339db695c69ee6c3874bb3e2bd59"},
 	{"repo": "Arm-Examples/topo-simd-visual-benchmark", "sha": "d10307c3ba7b93cc5e49ed69068e98b8465f3dcf"},
-	{"repo": "Arm-Examples/composable-ai-perception-object-detection", "sha": "6a995eaee273968864a5d59dcd3a4aa0800349dd"}
+	{"repo": "Arm-Examples/composable-ai-perception-object-detection", "sha": "642d23cc097078631cd27bc5c2c5200e1d8edc59"}
 ]

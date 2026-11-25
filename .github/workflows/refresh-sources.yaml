@@ -19,7 +19,7 @@ jobs:
         id: app-token
         uses: actions/create-github-app-token@v3
         with:
-          app-id: ${{ secrets.TOPO_DEBUG_ACCESS_APP_ID }}
+          client-id: ${{ secrets.TOPO_DEBUG_ACCESS_APP_CLIENT_ID }}
           private-key: ${{ secrets.TOPO_DEBUG_ACCESS_APP_PRIVATE_KEY }}
           permission-contents: write
           permission-pull-requests: write

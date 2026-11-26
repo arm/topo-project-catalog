@@ -21,4 +21,5 @@ jobs:
           token: ${{ github.token }}
           branch: automation/refresh-catalog-sources
           title: "chore: refresh catalog source SHAs"
+          body-path: ${{ runner.temp }}/refresh-summary.md
           add-paths: data/github_sources.json

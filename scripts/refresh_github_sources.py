@@ -9,7 +9,6 @@ from pathlib import Path
 def main():
     path = Path(__file__).resolve().parents[1] / "data/github_sources.json"
     sources = json.loads(path.read_text())
-    changed = False
     updates = []
     for source in sources:
         sha = subprocess.check_output(
@@ -21,14 +20,13 @@ def main():
         print(f"{source['repo']}: {source['sha']} -> {sha}", file=sys.stderr)
         if source["sha"] != sha:
             source["sha"] = sha
-            changed = True
             updates.append(source["repo"])
     print(
         f"Checked at: {datetime.now(timezone.utc):%Y-%m-%d %H:%M:%S UTC}\n\n"
         "Detected updated commits for the following repositories:\n\n"
         + "\n".join(f"- {repo}" for repo in updates)
     )
-    if not changed:
+    if len(updates) == 0:
         print("No SHA changes detected; leaving the file unchanged.", file=sys.stderr)
         return
     path.write_text(

@@ -1,14 +1,13 @@
 import json
-import os
 import re
 import subprocess
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 
 def main():
     path = Path(__file__).resolve().parents[1] / "data/github_sources.json"
-    pr_body_path = os.environ.get("PR_BODY_PATH")
     sources = json.loads(path.read_text())
     changed = False
     updates = []
@@ -19,20 +18,18 @@ def main():
         ).strip()
         if not re.fullmatch(r"[0-9a-f]{40}", sha):
             raise ValueError(f"Invalid HEAD SHA for {source['repo']}: {sha}")
-        print(f"{source['repo']}: {source['sha']} -> {sha}")
+        print(f"{source['repo']}: {source['sha']} -> {sha}", file=sys.stderr)
         if source["sha"] != sha:
             source["sha"] = sha
             changed = True
             updates.append(source["repo"])
-    if pr_body_path:
-        Path(pr_body_path).write_text(
-            f"Checked at: {datetime.now(timezone.utc):%Y-%m-%d %H:%M:%S UTC}\n\n"
-            "Detected updated commits for the following repositories:\n\n"
-            + "\n".join(f"- {repo}" for repo in updates)
-            + "\n"
-        )
+    print(
+        f"Checked at: {datetime.now(timezone.utc):%Y-%m-%d %H:%M:%S UTC}\n\n"
+        "Detected updated commits for the following repositories:\n\n"
+        + "\n".join(f"- {repo}" for repo in updates)
+    )
     if not changed:
-        print("No SHA changes detected; leaving the file unchanged.")
+        print("No SHA changes detected; leaving the file unchanged.", file=sys.stderr)
         return
     path.write_text(
         "[\n\t" + ",\n\t".join(json.dumps(source) for source in sources) + "\n]\n"

@@ -19,12 +19,18 @@ def main():
             raise ValueError(f"Invalid HEAD SHA for {source['repo']}: {sha}")
         print(f"{source['repo']}: {source['sha']} -> {sha}", file=sys.stderr)
         if source["sha"] != sha:
+            repo, old_sha = source["repo"], source["sha"]
+            updated_repos.append(
+                f"| {repo} | `{old_sha}` | `{sha}` | "
+                f"[Compare](https://github.com/{repo}/compare/{old_sha}...{sha}) |"
+            )
             source["sha"] = sha
-            updated_repos.append(source["repo"])
     print(
         f"Checked at: {datetime.now(timezone.utc):%Y-%m-%d %H:%M:%S UTC}\n\n"
-        "Detected updated commits for the following repositories:\n\n"
-        + "\n".join(f"- {repo}" for repo in updated_repos)
+        "Detected updates:\n\n"
+        "| Repository | Old SHA | New SHA | Diff |\n"
+        "| --- | --- | --- | --- |\n"
+        + "\n".join(updated_repos)
     )
     if len(updated_repos) == 0:
         print("No SHA changes detected; leaving the file unchanged.", file=sys.stderr)

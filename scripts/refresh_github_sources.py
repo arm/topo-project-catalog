@@ -4,6 +4,27 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from dataclasses import dataclass
+
+@dataclass
+class UpdatedRepo:
+    repo: str
+    old_sha: str
+    new_sha: str
+
+    def compare_url(self) -> str:
+        return f"https://github.com/{self.repo}/compare/{self.old_sha}...{self.new_sha}"
+
+def markdown_table(repos: list[UpdatedRepo]) -> str:
+    if not repos:
+        return ""
+    header = "| Repository | Old SHA | New SHA | Diff |\n| --- | --- | --- | --- |"
+    rows = "\n".join(
+        f"| {repo.repo} | `{repo.old_sha}` | `{repo.new_sha}` | "
+        f"[Compare]({repo.compare_url()}) |"
+        for repo in repos
+    )
+    return f"{header}\n{rows}"
 
 
 def main():
@@ -19,18 +40,18 @@ def main():
             raise ValueError(f"Invalid HEAD SHA for {source['repo']}: {sha}")
         print(f"{source['repo']}: {source['sha']} -> {sha}", file=sys.stderr)
         if source["sha"] != sha:
-            repo, old_sha = source["repo"], source["sha"]
             updated_repos.append(
-                f"| {repo} | `{old_sha}` | `{sha}` | "
-                f"[Compare](https://github.com/{repo}/compare/{old_sha}...{sha}) |"
+                UpdatedRepo(
+                    repo=source["repo"],
+                    old_sha=source["sha"],
+                    new_sha=sha,
+                )
             )
             source["sha"] = sha
     print(
         f"Checked at: {datetime.now(timezone.utc):%Y-%m-%d %H:%M:%S UTC}\n\n"
         "Detected updates:\n\n"
-        "| Repository | Old SHA | New SHA | Diff |\n"
-        "| --- | --- | --- | --- |\n"
-        + "\n".join(updated_repos)
+        + markdown_table(updated_repos)
     )
     if len(updated_repos) == 0:
         print("No SHA changes detected; leaving the file unchanged.", file=sys.stderr)
